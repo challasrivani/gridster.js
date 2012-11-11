@@ -1,4 +1,4 @@
-/*! gridster.js - v0.1.0 - 2012-10-20
+/*! gridster.js - v0.1.0 - 2012-11-11
 * http://gridster.net/
 * Copyright (c) 2012 ducksboard; Licensed MIT */
 
@@ -2330,6 +2330,7 @@
         this.remove_from_gridmap(widget_grid_data);
         widget_grid_data.row = row;
         this.add_to_gridmap(widget_grid_data);
+        $widget.css('top', ''); //fix conflict with jquery-resizable
         $widget.attr('data-row', row);
         this.$changed = this.$changed.add($widget);
 
@@ -2381,6 +2382,7 @@
                 this.remove_from_gridmap(widget_grid_data);
                 widget_grid_data.row = next_row;
                 this.add_to_gridmap(widget_grid_data);
+                $widget.css('top', ''); //fix conflict with jquery-resizable
                 $widget.attr('data-row', widget_grid_data.row);
                 this.$changed = this.$changed.add($widget);
 
@@ -2433,6 +2435,7 @@
 
             widget_grid_data.row = next_row;
             this.update_widget_position(widget_grid_data, $widget);
+            $widget.css('top', ''); //fix conflict with jquery-resizable
             $widget.attr('data-row', widget_grid_data.row);
             this.$changed = this.$changed.add($widget);
 
