@@ -15,8 +15,9 @@
         offset_left: 0,
         autoscroll: true,
         ignore_dragging: ['INPUT', 'TEXTAREA', 'SELECT', 'BUTTON'],
-        handle: null
-        // ,drag: function(e){},
+        handle: null,
+        container_width: 0  // 0 == auto
+        // drag: function(e){},
         // start : function(e, ui){},
         // stop : function(e){}
     };
@@ -24,9 +25,9 @@
     var $window = $(window);
     var isTouch = !!('ontouchstart' in window);
     var pointer_events = {
-        start: isTouch ? 'touchstart' : 'mousedown.draggable',
-        move: isTouch ? 'touchmove' : 'mousemove.draggable',
-        end: isTouch ? 'touchend' : 'mouseup.draggable'
+        start: isTouch ? 'touchstart.gridster-draggable' : 'mousedown.gridster-draggable',
+        move: isTouch ? 'touchmove.gridster-draggable' : 'mousemove.gridster-draggable',
+        end: isTouch ? 'touchend.gridster-draggable' : 'mouseup.gridster-draggable'
     };
 
     /**
@@ -73,15 +74,16 @@
         this.disabled = false;
         this.events();
 
-        $(window).bind('resize',
+        $(window).bind('resize.gridster-draggable',
             throttle($.proxy(this.calculate_positions, this), 200));
     };
 
     fn.events = function() {
-        this.$container.on('selectstart', $.proxy(this.on_select_start, this));
+        this.$container.on('selectstart.gridster-draggable',
+            $.proxy(this.on_select_start, this));
 
-        this.$container.on(pointer_events.start, this.options.items, $.proxy(
-            this.drag_handler, this));
+        this.$container.on(pointer_events.start, this.options.items,
+            $.proxy(this.drag_handler, this));
 
         this.$body.on(pointer_events.end, $.proxy(function(e) {
             this.is_dragging = false;
@@ -205,7 +207,7 @@
                 mouse_actual_pos.top - self.mouse_init_pos.top);
             if (!(diff_x > self.options.distance ||
                 diff_y > self.options.distance)
-            ) {
+                ) {
                 return false;
             }
 
@@ -222,7 +224,7 @@
             return false;
         });
 
-        return false;
+        if (!isTouch) { return false; }
     };
 
 
@@ -246,7 +248,9 @@
         this.el_init_offset = this.$player.offset();
         this.player_width = this.$player.width();
         this.player_height = this.$player.height();
-        this.player_max_left = (this.$container.width() - this.player_width +
+
+        var container_width = this.options.container_width || this.$container.width();
+        this.player_max_left = (container_width - this.player_width +
             this.options.offset_left);
 
         if (this.options.start) {
@@ -326,6 +330,11 @@
 
     fn.destroy = function(){
         this.disable();
+
+        this.$container.off('.gridster-draggable');
+        this.$body.off('.gridster-draggable');
+        $(window).off('.gridster-draggable');
+
         $.removeData(this.$container, 'drag');
     };
 
